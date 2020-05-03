@@ -10,7 +10,7 @@
 6. Feature Engineering
 7. Modeling
 8. Evaluation
-9. Project Delivery / Insights 
+9. Project Delivery / Insights (Submission)
 <p>하지만 이 레포지터리에서는 캐글의 타이타닉 생존자 예측을 하는 것이기 때문에 문제가 정의되어 있고 데이터도 모여있다. 따라서 1, 2번 과정을 스킵한다. 그리고 Data Preprocessing과 Feature Engineering은 동일시하는 경향이 있지만 엄밀한 의미에서 보면 최종 목적이 다르기 때문에 목적에 맞게 구분하는 것을 권장한다고 하지만 내가 차이를 이해하지 못했기 때문에 여기선 동일하다고 가정하겠다. 그렇게 되면 우리가 최종적으로 하게될 것은 EDA, Feature Engineering, Modeling, Evaluation, Project Delivery / Insight 가 되겠다.</p>
 &nbsp;이제부터 캐글 타이타닉 생종자 예측을 시작해 보도록 하겠다.
 
@@ -407,6 +407,101 @@ g = g.legend(loc='best')
 ```python
 df_train.drop(['PassengerId', 'Name', 'SibSp', 'Parch', 'Ticket', 'Cabin', 'Age'], axis=1, inplace=True)
 df_test.drop(['PassengerId', 'Name', 'SibSp', 'Parch', 'Ticket', 'Cabin', 'Age'], axis=1, inplace=True)
+```
+
+#### Pearson Correlation
+&nbsp;이제 각 feature간의 상관관계를 구하려고 한다. 두 변수간 Pearson Correlation을 구하면 -1 ~ 1 사이의 값을 얻을 수 있다. -1로 갈수록 음의 상관관계, 1로 갈수록 양의 상관관계를 의미하며 0은 상관관계가 없다는 것을 의미한다. Pearson Correlation을 히트맵으로 보면 다음과 같이 나온다.
+```python
+heatmap_data = df_train[['Survived', 'Pclass', 'Sex', 'Fare', 'Embarked', 'FamilySize', 'Initial', 'Age_cat']]
+
+colormap = plt.cm.BuGn
+plt.figure(figsize=(12, 10))
+plt.title('Pearson Correalation of Features', y=1.05, size=15)
+sns.heatmap(heatmap_data.astype(float).corr(), linewidths=0.1, vmax=1.0, square=True, cmap=colormap, linecolor='white', annot=True, annot_kws={'size':16})
+
+plt.show()
+```
+<img src="https://media.discordapp.net/attachments/706368531175964732/706452177962401802/aqxfMX8j6fA669YZ9ugKeucWGZWIk6gzMzM6ju4zrZKtvxiNwIxM7PiOYEyMzMbnZomJnZ8ziBMjMzq23rogMwM7Pe4wTKzMysho.png?width=762&height=677" title="Pearson Correlation Heatmap" alt="Pearson Correlation Heatmap"></img><br>
+위 그림을 보면 우리가 EDA에서 살펴왔듯, Sex와 Pclass가 Survived에 어느정도 상관관계가 있음을 볼 수 있다. 또한 생각보다 Fare와 Embarked도 상관관계가 있음을 볼 수 있다. 그리고 여기서 얻을 수 있는 정보는 서로 강한 상관관계를 가지는 feature가 없다. 만약 서로 다른 두 feature가 1또는 -1의 상관관계를 가진다면 그 두 feature에서 얻을 수 있는 정보는 하나일 것이므로 하나는 지워도 된다.
+
+#### One-hot Encoding (Initial & Embarked)
+&nbsp;만약 수치화된 카테고리를 그냥 모델에 넣으면 예를 들어 모델이 Master == 0, Miss == 1, Mr == 2, Mrs == 3, Other == 4와 같은 데이터를 받았을 때, 서로의 호칭들이 상관관계가 있다고 오해한다. 따라서 One-hot Encoding을 해주면 각 데이터가 Master가 맞는지 아닌지, Mrs가 맞는지 아닌지만 판단하기 때문에 오해할 가능성이 적어진다.<br>
+&nbsp;One-hot Encoding은 pandas의 get_dummies로 간단하게 할 수 있다.
+```python
+df_train = pd.get_dummies(df_train, columns=['Initial'], prefix='Initial')
+df_test = pd.get_dummies(df_test, columns=['Initial'], prefix='Initial')
+```
+```python
+df_train = pd.get_dummies(df_train, columns=['Embarked'], prefix='Embarked')
+df_test = pd.get_dummies(df_test, columns=['Embarked'], prefix='Embarked')
+```
+
+### Modeling
+&nbsp;길고 긴 여정 끝에 드디어 모델을 만드는 순간까지 왔다. 본 레포지터리는 튜토리얼이기 때문에 모델의 하이퍼 파라미터를 튜닝하진 않겠다.<br>
+&nbsp;여기서는 앙상블 모델인 RandomForest를 사용할 것이다. 우선 모듈을 불러올 것이다.
+```python
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics
+from sklearn.model_selection import train_test_split
+```
+우리는 킹갓 사이킷런을 사용할 것이다.
+&nbsp;우선 데이터셋을 train, test, validation set으로 나눌것이다. train set은 실제 모델을 학습할 때 사용할 데이터이고, test set은 제출할 label이 없는 데이터(여기선 df_test), validation set은 학습시킬 때 사용하지 않고 모델을 임시로 평가할 때 사용한다. 이 데이터셋은 학습에 이용되지 않기 때문에 모델이 얼마나 일반화 됐는지 알 수 있다. 이 데이터셋들은 다음과 같은 코드로 만들어 줄 수 있다.
+```python
+X_train = df_train.drop('Survived', axis=1).values
+target_label = df_train['Survived'].values
+X_test = df_test.values
+```
+```python
+X_tr, X_vld, Y_tr, Y_vld = train_test_split(X_train, target_label, test_size=0.3)
+```
+&nbsp;다음으로 모델을 준비한다. 모델은 사이킷런에서 모두 구현 돼 있기 때문에 우리는 만들어져 있는걸 호출해 오기만 하면 된다. 다음고 ㅏ같은 코드로 호출을 할 수 있다.
+```python
+model = RandomForestClassifier()
+```
+그리고 모델 학습은 다음과 같은 코드로 할 수 있다.
+```python
+model.fit(X_tr, Y_tr)
+```
+
+### Evaluating
+validation set으로 일반화된 성능은 얼마나 되는지 알 수 있다. 모델 평가하는 방법은 다음과 같다.
+```python
+# validation set으로 예측
+prediction = model.predict(X_vld)
+```
+```python
+print("총 {}명 중 {:.2f}% 정확도로 생존 맞춤".format(Y_vld.shape[0], 100 * metrics.accuracy_score(prediction, Y_vld)))
+```
+이렇게 예측까지 했다. 나의 경우 정확도는 80.6%가 나왔다.
+
+#### Feature Importance
+RandomForest와 같은 트리 기반 모델들은 feature importance를 알 수 있다. feature importance는 다음과 같은 코드로 알 수 있다.
+```python
+feature_importance = model.feature_importances_
+Series_feat_impo = pd.Series(feature_importance, index=df_test.columns)
+```
+```
+plt.figure(figsize=(8, 8))
+Series_feat_impo.sort_values(ascending=True).plot.barh()
+plt.xlabel('Feature importance')
+plt.ylabel('Feature')
+
+plt.show()
+```
+<img src="https://cdn.discordapp.com/attachments/706368531175964732/706458536103641138/VYiUD6OaMX8DzCHaPV9iejsB9wZIXzZ7v7kcDaRBeEvxDf4VyiP3LREBIrCpkRrvAFdXV3tLoOIiEhHMbMxRKscwH7ufln7SiPSN.png" title="Feature Importance" alt="Feature Importance"></img><br>
+이러한 feature importance를 갖고 좀 더 정확한 모델을 위해 feature selection 을 할 수 있고, 좀 더 빠른 모델을 위해 feature를 제거할 수 있다.
+
+### Submission
+이제 test set을 예측해 제출해 볼 수 있다. 제출할 때에는 Kaggle에서 주는 gender_submission.csv(왜 이 이름인지는 모르겠지만)에 제출하면 된다.<br>
+test를 예측하는 것은 다음과 같이 할 수 있다.
+```python
+prediction = model.predict(X_test)
+```
+그리고 제출은 다음과 같이 할 수 있다.
+```python
+submission = pd.read_csv("gender_submission.csv주소")
+submission['Survived'] = prediction
+submission.to_csv("/content/gdrive/My Drive/Kaggle Study/Kaggle_Titanic/first_submission.csv", index=False)
 ```
 
 
