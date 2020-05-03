@@ -503,7 +503,8 @@ submission = pd.read_csv("gender_submission.csv주소")
 submission['Survived'] = prediction
 submission.to_csv("/content/gdrive/My Drive/Kaggle Study/Kaggle_Titanic/first_submission.csv", index=False)
 ```
-
+이렇게 얻은 gender_submission.csv를 Kaggle페이지의 Submit Predictions에 제출하면 된다.
+<img src="https://cdn.discordapp.com/attachments/706368531175964732/706461916301623377/unknown.png" title="submission" alt="submission"></img><br>
 
 ### 참고자료
 http://hero4earth.com/blog/learning/2018/01/29/Feature_Engineering_Basic/ <br>
