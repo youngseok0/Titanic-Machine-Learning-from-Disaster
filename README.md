@@ -141,6 +141,162 @@ sns.factorplot('Pclass', 'Survived', hue='Sex', data=df_train, size=6, aspect=1.
 <img src="https://cdn.discordapp.com/attachments/706368531175964732/706392562336006144/14Npp4PdDCL8kCQ8LSFZK3wmsBm6PMd4BEEI40aUuIhm8vhioAmaQtHC0ArsyNd4LfKTqXkfCiFckHn5cD5JFP6DiMZt7IVeAL4b.png" title="Sex & Pclass & Survival factorplot" alt="Sex & Pclass & Survival factorplot"></img><br>
 위의 그래프를 살펴보면 모든 클래스에서 여성이 살 확률이 남성보다 높다는 것을 알 수 있고, 남자, 여자 상관없이 클래스가 높을 수록 살 확률이 높다는 것을 알 수 있다.
 
+#### Age
+&nbsp;이번에는 Age feature를 살펴보도록 하겠다.
+```python
+print("제일 나이 많은 탑승객 : {:.1f} years".format(df_train['Age'].max()))
+print("제일 어린 탑승객 : {:.1f} years".format(df_train['Age'].min()))
+print("탑승객 평균 나이 : {:.1f} years".format(df_train['Age'].mean()))
+```
+<img src="https://media.discordapp.net/attachments/706368531175964732/706398111542804520/unknown.png" title="Age stat" alt="Age stat"></img><br>
+&nbsp;생존에 따른 Age의 kdeplot을 그려보면 다음과 같이 나온다.
+```python
+fig, ax = plt.subplots(1, 1, figsize=(9, 5))
+sns.kdeplot(df_train[df_train['Survived'] == 1]['Age'], ax=ax)
+sns.kdeplot(df_train[df_train['Survived'] == 0]['Age'], ax=ax)
+plt.legend(['Survived == 1', 'Survived == 0'])
+
+plt.show()
+```
+<img src="https://cdn.discordapp.com/attachments/706368531175964732/706399881144696832/H9FRTV31UTl1wAAAABJRU5ErkJggg.png" title="Age & Survived kdeplot" alt="Age & Survived kdeplot"></img><br>
+위 그래프를 살펴보면 생존자 중 나이가 어린 경우가 많음을 알 수 있다.
+&nbsp;Pclass당 나이 분포를 살펴보면 아래와 같이 그려진다.
+```python
+plt.figure(figsize=(8, 6))
+df_train['Age'][df_train['Pclass'] == 1].plot(kind='kde')
+df_train['Age'][df_train['Pclass'] == 2].plot(kind='kde')
+df_train['Age'][df_train['Pclass'] == 3].plot(kind='kde')
+
+plt.xlabel('Age')
+plt.title('Age Distribution within classes')
+plt.legend(['1st Class', '2nd Class', '3rd Class'])
+
+plt.show()
+```
+<img src="https://media.discordapp.net/attachments/706368531175964732/706402784232341514/8HBqkuXp0PwGoAAAAASUVORK5CYII.png" title="Age Distribution within classes" alt="Age Distribution within classes"></img><br>
+위 그래프를 살펴보면 Pclass가 높을수록 나이 많은 사람의 비중이 커짐을 알 수 있다.
+
+&nbsp;이번에는 나이대가 변하면서 생존률이 어떻게 변화하는 지 보기 위 해 나이 범위를 점점 넓혀가며, 생존률이 어떻게 되는지 살펴볼 것이다.
+```python
+change_age_range_survival_ratio = []
+
+for i in range(1, 80):
+  change_age_range_survival_ratio.append(df_train[df_train['Age'] < i]['Survived'].sum() / len(df_train[df_train['Age'] < i]['Survived']))
+
+plt.figure(figsize=(7, 7))
+plt.plot(change_age_range_survival_ratio)
+plt.title('Survival rate change depending on range of Age', y=1.02)
+plt.ylabel('Survival rate')
+plt.xlabel('Range of Age(0~x)')
+
+plt.show()
+```
+<img src="https://media.discordapp.net/attachments/706368531175964732/706401578537451611/W0RkYNSSLiIiIiIyxKjjqIiIiIjIEKMgXURERERkiFGQLiIiIiIyxChIFxEREREZYhSki4iIiIgMMQrSRURERESGmP8PPWvSwYkV.png" title="Survival rate change depending on range of Age" alt="Survival rate change depending on range of Age"></img><br>
+위 그래프를 살펴보면 나이가 어릴 수록 생존률이 확실히 높은 것을 확인할 수 있다. 따라서 Age는 중요한 feature로 사용될 수 있다.
+
+#### Pclass, Sex and Age
+&nbsp;여태까지 본 Sex, Pclass, Age, Survived 모두에 대해 보고 싶으면 seaborn의 violinplot을 사용하는 것도 하나의 방법이다. x축을 Pclass, Sex로 y축을 Age로 두고 그래프를 그리면 다음과 같이 나온다.
+```python
+f, ax = plt.subplots(1, 2, figsize=(18, 8))
+sns.violinplot('Pclass', 'Age', hue='Survived', data=df_train, scale='count', split=True, ax=ax[0])
+ax[0].set_title('Pclass and Age vs Survived')
+
+sns.violinplot('Sex', 'Age', hue='Survived', data=df_train, scale='count', split=True, ax=ax[1])
+ax[0].set_title('Sex and Age vs Survived')
+
+plt.show()
+```
+<img src="https://cdn.discordapp.com/attachments/706368531175964732/706408099694641172/w9WbOsO9iJHtwAAAABJRU5ErkJggg.png" title="violin plot" alt="violin plot"></img><br>
+생존만 봤을 때. 모든 클래스에서 나이가 어릴 수록 생존을 많이 한것을 볼 수 있다. 오른쪽 그래프를 보면 명확히 여자가 많이 생존한 것을 볼 수 있다. 결과적으로 여성과 아이를 먼저 챙긴 것을 알 수 있다.
+
+#### Embarked
+&nbsp;Embarked는 탑승한 항구를 나타낸다. 이번에는 탑승한 곳에 따른 생존률을 보겠다.
+```python
+f, ax = plt.subplots(1, 1, figsize=(7, 7))
+df_train[['Embarked', 'Survived']].groupby(['Embarked'], as_index=True).mean().sort_values(by='Survived', ascending=False).plot.bar(ax=ax)
+```
+<img src="https://cdn.discordapp.com/attachments/706368531175964732/706416133103681577/adAAAAAElFTkSuQmCC.png" title="Embarked Survial rate" alt="Embarked Survival rate"></img><br>
+위 그래프를 보면 항구마다 조금 씩 차이는 있지만 생존률은 비슷하다. 이 feature가 모델에 얼마나 큰 영향을 미칠지는 모르겠지만 그래도 사용하도록 한다. 미리 스포일러 하자면 RandomForest 기준 영향 미친건 쥐똥만하다.
+&nbsp;Embarked를 다른 feature와 함께 그래프를 그리면 다음과 같이 그려진다.
+```python
+f, ax = plt.subplots(2, 2, figsize=(20, 15))
+sns.countplot('Embarked', data=df_train, ax=ax[0, 0])
+ax[0, 0].set_title('(1) No. Of Passengers Boared')
+
+sns.countplot('Embarked', hue='Sex', data=df_train, ax=ax[0, 1])
+ax[0, 1].set_title('(2) Male-Female split for embarked')
+
+sns.countplot('Embarked', hue='Survived', data=df_train, ax=ax[1, 0])
+ax[1, 0].set_title('(3) Embarked vs Survived')
+
+sns.countplot('Embarked', hue='Pclass', data=df_train, ax=ax[1, 1])
+ax[1, 1].set_title('(4) Embarked vs Pclass')
+
+plt.subplots_adjust(wspace=0.2, hspace=0.5)
+plt.show()
+```
+<img src="https://media.discordapp.net/attachments/706368531175964732/706417747994607646/BeoOtZn5wWCNAAAAAElFTkSuQmCC.png?width=900&height=677" title="Emabrked and various features" alt="Emabrked and various features"></img><br>
+첫 번째 그림을 봤을 때 S에서 가장 많은 사람이 탑승했다. <br>
+두 번째 그림을 봤을 때에는 C와 Q의 남녀비율이 비슷하고 S는 남자가 더 많다.<br>
+세 번째 그림을 보면 생존확률이 S의 경우 많이 낮은 걸 볼 수 있다. 아마 남자의 비율이 높았기 때문일지도 모른다. <br>
+네 번째 그림에서는 C가 생존확률이 높은 것은 클래스가 높은 사람이 많이 타서 그런것으로 보인다. 그리고 S는 3rd class가 많아서 생존확률이 낮게 나오는 것 같다.
+
+#### FamilySize(SibSp(형제 자매) + Parch(부모 자녀) + 1(나))
+&nbsp; SibSp와 Parch를 합치면 Family가 될 것이다. Family로 합쳐서 분석해보도록 한다.
+```python
+df_train['FamilySize'] = df_train['SibSp'] + df_train['Parch'] + 1
+df_test['FamilySize'] = df_test['SibSp'] + df_test['Parch'] + 1
+```
+```python
+print('Maximum size of Family : ', df_train['FamilySize'].max())
+print('Minimum size of Family : ', df_train['FamilySize'].min())
+```
+위의 코드로 가장 큰 가족과 작은 가족을 찾으면 11, 1이 나온다.<br>
+&nbsp;FamilySize와 생존의 관계를 살펴보면 다음과 같다.
+```python
+f, ax = plt.subplots(1, 3, figsize=(40, 10))
+sns.countplot('FamilySize', data=df_train, ax=ax[0])
+ax[0].set_title('(1) No. Of Passenger Boarded', y=1.02)
+
+sns.countplot('FamilySize', hue='Survived', data=df_train, ax=ax[1])
+ax[1].set_title('(2) Survived countplot depending on FamilySize', y=1.02)
+
+df_train[['FamilySize', 'Survived']].groupby(['FamilySize'], as_index=True).mean().sort_values(by='Survived', ascending=False).plot.bar(ax=ax[2])
+ax[2].set_title('(1) No. Of Passenger Boarded', y=1.02)
+
+plt.subplots_adjust(wspace=0.2, hspace=0.5)
+plt.show()
+```
+<img src="https://media.discordapp.net/attachments/706368531175964732/706421155384524870/rJA4tCkobUmoMOQJIkSZIkSZIkSZKkqSYitgW2BV4CzK8LwOWZefXAApOkIWUnJUmSJEmSJEmSJEmSxu5g4LimfY8AHx9ALJI09C.png?width=1442&height=417" title="(1) No. Of Passenger Boarded (2) Survived countplot depending on FamilySize (3) No. Of Passenger Boarded" alt="(1) No. Of Passenger Boarded (2) Survived countplot depending on FamilySize (3) No. Of Passenger Boarded"></img><br>
+(1)그림을 살펴보면 가족 크기는 1~11까지 있고 대부분 1명, 그 다음으로는 2, 3, 4명인 걸 알 수 있다.<br>
+(2)그림을 살펴보면 가족이 4명인 경우가 가장 생존 확률이 높다. 가족수가 너무 많아도 너무 적어도 생존 확률이 작아진다. 3~4명 선에서 생존 확률이 높은 것을 확인할 수 있다.
+
+#### Fare
+Fare는 탑승 요금이며 연속형 feature이다.
+```python
+f, ax = plt.subplots(1, 1, figsize=(8, 8))
+g = sns.distplot(df_train['Fare'], color='b', label='Skewness: {:.2f}'.format(df_train['Fare'].skew()), ax=ax)
+g = g.legend(loc='best')
+```
+<img src="https://media.discordapp.net/attachments/706368531175964732/706422927704326204/Acgecs91zgiqAAAAAElFTkSuQmCC.png" title="Skewness of Fare" alt="Skewness of Fare"></img><br>
+Fare를 distplot으로 그려 비대칭도를 살펴보면 왼쪽으로 매우 비대칭인 것을 알 수 있다. 만약 데이터가 이렇게 비대칭인 체 모델에 넣어준다면 outlier에 매우 민감하게 반응하는 모델이 만들어 질 수 있다. 이것을 대칭으로 만들어 주는 것은 Feature Engineering 때 하도록 하겠다.
+
+#### Cabin
+&nbsp;이 feature는 NaN이 너무 많으므로 생존에 영향을 미칠 중요한 정보를 얻어내기가 어렵다. 그러므로 모델에 포함시키지 않도록 하겠다.
+
+#### Ticket
+&nbsp; 이 feature는 Nan이 없으나 string data이므로 우리가 어떤 작업들을 해주어야 실제 모델에 사용할 수 있다. 이를 위해선 아이디어가 필요하다. 이유한님의 강의에서는 다루지않고 직접해보라고 하였으므로 넘어가도록 하겠다.
+
+### Feature Engineering
+
+#### Feature Engineering 정의
+&nbsp;Feature Engineering은 머신러닝 알고리즘을 작동하기 위해 데이터에 대한 도메인 지식을 활용하여 feature를 만들어내는 작업이다. 다시말해 모델의 성능을 높이기 위해 모델에 입력할 데이터를 만들기 주어진 초기 데이터로부터 특징을 가공하고 생성하는 전체 과정을 의미한다.
+
+
+
+
+
+
 ### 참고자료
 http://hero4earth.com/blog/learning/2018/01/29/Feature_Engineering_Basic/ <br>
 https://eda-ai-lab.tistory.com/13 <br>
