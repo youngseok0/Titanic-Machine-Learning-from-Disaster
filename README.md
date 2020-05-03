@@ -12,7 +12,7 @@
 8. Evaluation
 9. Project Delivery / Insights (Submission)
 <p>하지만 이 레포지터리에서는 캐글의 타이타닉 생존자 예측을 하는 것이기 때문에 문제가 정의되어 있고 데이터도 모여있다. 따라서 1, 2번 과정을 스킵한다. 그리고 Data Preprocessing과 Feature Engineering은 동일시하는 경향이 있지만 엄밀한 의미에서 보면 최종 목적이 다르기 때문에 목적에 맞게 구분하는 것을 권장한다고 하지만 내가 차이를 이해하지 못했기 때문에 여기선 동일하다고 가정하겠다. 그렇게 되면 우리가 최종적으로 하게될 것은 EDA, Feature Engineering, Modeling, Evaluation, Project Delivery / Insight 가 되겠다.</p>
-&nbsp;이제부터 캐글 타이타닉 생종자 예측을 시작해 보도록 하겠다.
+&nbsp;이제부터 캐글 타이타닉 생존자 예측을 시작해 보도록 하겠다.
 
 ### Modules
 ```python
