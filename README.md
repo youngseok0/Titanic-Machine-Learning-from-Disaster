@@ -344,6 +344,7 @@ df_train['Embarked'].fillna('S', inplace=True)
 ```
 <br>
 df_test의 Fare의 Null도 많지 않기 때문에 평균값으로 채워준다.
+
 ```python
 df_test.loc[df_test.Fare.isnull(), 'Fare'] = df_test['Fare'].mean()
 ```
@@ -425,7 +426,7 @@ plt.show()
 위 그림을 보면 우리가 EDA에서 살펴왔듯, Sex와 Pclass가 Survived에 어느정도 상관관계가 있음을 볼 수 있다. 또한 생각보다 Fare와 Embarked도 상관관계가 있음을 볼 수 있다. 그리고 여기서 얻을 수 있는 정보는 서로 강한 상관관계를 가지는 feature가 없다. 만약 서로 다른 두 feature가 1또는 -1의 상관관계를 가진다면 그 두 feature에서 얻을 수 있는 정보는 하나일 것이므로 하나는 지워도 된다.
 
 #### One-hot Encoding (Initial & Embarked)
-&nbsp;만약 수치화된 카테고리를 그냥 모델에 넣으면 예를 들어 모델이 Master == 0, Miss == 1, Mr == 2, Mrs == 3, Other == 4와 같은 데이터를 받았을 때, 서로의 호칭들이 상관관계가 있다고 오해한다. 따라서 One-hot Encoding을 해주면 각 데이터가 Master가 맞는지 아닌지, Mrs가 맞는지 아닌지만 판단하기 때문에 오해할 가능성이 적어진다.<br>
+&nbsp;만약 수치화된 카테고리를 그냥 모델에 넣으면 예를 들어 모델이 Master == 0, Miss == 1, Mr == 2, Mrs == 3, Other == 4와 같은 데이터를 받았을 때, 서로의 호칭들이 상관관계가 있다고 오해할 수도 있다. 따라서 One-hot Encoding을 해주면 각 데이터가 Master가 맞는지 아닌지, Mrs가 맞는지 아닌지만 판단하기 때문에 오해할 가능성이 적어진다.<br>
 &nbsp;One-hot Encoding은 pandas의 get_dummies로 간단하게 할 수 있다.
 ```python
 df_train = pd.get_dummies(df_train, columns=['Initial'], prefix='Initial')
@@ -438,14 +439,14 @@ df_test = pd.get_dummies(df_test, columns=['Embarked'], prefix='Embarked')
 
 ### Modeling
 &nbsp;길고 긴 여정 끝에 드디어 모델을 만드는 순간까지 왔다. 본 레포지터리는 튜토리얼이기 때문에 모델의 하이퍼 파라미터를 튜닝하진 않겠다.<br>
-&nbsp;여기서는 앙상블 모델인 RandomForest를 사용할 것이다. 우선 모듈을 불러올 것이다.
+&nbsp;여기서는 앙상블 모델인 RandomForest를 사용할 것이다. 우선 모듈을 불러온다.
 ```python
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 ```
-우리는 킹갓 사이킷런을 사용할 것이다.
-&nbsp;우선 데이터셋을 train, test, validation set으로 나눌것이다. train set은 실제 모델을 학습할 때 사용할 데이터이고, test set은 제출할 label이 없는 데이터(여기선 df_test), validation set은 학습시킬 때 사용하지 않고 모델을 임시로 평가할 때 사용한다. 이 데이터셋은 학습에 이용되지 않기 때문에 모델이 얼마나 일반화 됐는지 알 수 있다. 이 데이터셋들은 다음과 같은 코드로 만들어 줄 수 있다.
+우리는 킹갓 사이킷런을 사용한다.
+&nbsp;먼저 해야할 일은 데이터셋을 train, test, validation set으로 나누는 것이다. train set은 실제 모델을 학습할 때 사용할 데이터이고, test set은 제출할 label이 없는 데이터(여기선 df_test), validation set은 학습시킬 때 사용하지 않고 모델을 임시로 평가할 때 사용한다. 이 데이터셋은 학습에 이용되지 않기 때문에 모델이 얼마나 일반화 됐는지 알 수 있다. 이 데이터셋들은 다음과 같은 코드로 만들어 줄 수 있다.
 ```python
 X_train = df_train.drop('Survived', axis=1).values
 target_label = df_train['Survived'].values
@@ -454,7 +455,7 @@ X_test = df_test.values
 ```python
 X_tr, X_vld, Y_tr, Y_vld = train_test_split(X_train, target_label, test_size=0.3)
 ```
-&nbsp;다음으로 모델을 준비한다. 모델은 사이킷런에서 모두 구현 돼 있기 때문에 우리는 만들어져 있는걸 호출해 오기만 하면 된다. 다음고 ㅏ같은 코드로 호출을 할 수 있다.
+&nbsp;다음으로 모델을 준비한다. 모델은 사이킷런에서 모두 구현 돼 있기 때문에 우리는 만들어져 있는걸 호출해 오기만 하면 된다. 모델은 다음과 같은 코드로 호출을 할 수 있다.
 ```python
 model = RandomForestClassifier()
 ```
@@ -501,7 +502,7 @@ prediction = model.predict(X_test)
 ```python
 submission = pd.read_csv("gender_submission.csv주소")
 submission['Survived'] = prediction
-submission.to_csv("/content/gdrive/My Drive/Kaggle Study/Kaggle_Titanic/first_submission.csv", index=False)
+submission.to_csv("저장할 주소/저장할 이름.csv", index=False)
 ```
 이렇게 얻은 gender_submission.csv를 Kaggle페이지의 Submit Predictions에 제출하면 된다.
 <img src="https://cdn.discordapp.com/attachments/706368531175964732/706461916301623377/unknown.png" title="submission" alt="submission"></img><br>
