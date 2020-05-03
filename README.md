@@ -268,8 +268,8 @@ plt.subplots_adjust(wspace=0.2, hspace=0.5)
 plt.show()
 ```
 <img src="https://media.discordapp.net/attachments/706368531175964732/706421155384524870/rJA4tCkobUmoMOQJIkSZIkSZIkSZKkqSYitgW2BV4CzK8LwOWZefXAApOkIWUnJUmSJEmSJEmSJEmSxu5g4LimfY8AHx9ALJI09C.png?width=1442&height=417" title="(1) No. Of Passenger Boarded (2) Survived countplot depending on FamilySize (3) No. Of Passenger Boarded" alt="(1) No. Of Passenger Boarded (2) Survived countplot depending on FamilySize (3) No. Of Passenger Boarded"></img><br>
-(1)그림을 살펴보면 가족 크기는 1~11까지 있고 대부분 1명, 그 다음으로는 2, 3, 4명인 걸 알 수 있다.<br>
-(2)그림을 살펴보면 가족이 4명인 경우가 가장 생존 확률이 높다. 가족수가 너무 많아도 너무 적어도 생존 확률이 작아진다. 3~4명 선에서 생존 확률이 높은 것을 확인할 수 있다.
+(1)그림을 살펴보면 가족 크기는 1 ~ 11까지 있고 대부분 1명, 그 다음으로는 2, 3, 4명인 걸 알 수 있다.<br>
+(2), (3)그림을 살펴보면 가족이 4명인 경우가 가장 생존 확률이 높다. 가족수가 너무 많아도 너무 적어도 생존 확률이 작아진다. 3 ~ 4명 선에서 생존 확률이 높은 것을 확인할 수 있다.
 
 #### Fare
 Fare는 탑승 요금이며 연속형 feature이다.
@@ -292,9 +292,122 @@ Fare를 distplot으로 그려 비대칭도를 살펴보면 왼쪽으로 매우 �
 #### Feature Engineering 정의
 &nbsp;Feature Engineering은 머신러닝 알고리즘을 작동하기 위해 데이터에 대한 도메인 지식을 활용하여 feature를 만들어내는 작업이다. 다시말해 모델의 성능을 높이기 위해 모델에 입력할 데이터를 만들기 주어진 초기 데이터로부터 특징을 가공하고 생성하는 전체 과정을 의미한다.
 
+#### Fill Null
+&nbsp;결측치를 채울 때 주의할 점이 있는데, test와 train의 결측치는 오직 train의 데이터로만 추정하여 넣어야 한다.
+&nbsp;train데이터의 Age칼럼에는 Null data가 177개 있다. 이를 채우는 방법으로 title당 평균으로 채우는 방법으로 할 것이다. 영어에는 Mr., Mrs.,  Miss, Master(Mstr.)의 호칭이 있다. Mr.는 성인 남성, Mrs.는 결혼을 한 여성, Miss는 결혼을 하지 않은 여성, Master는 결혼을 하지 않은 남성 중 주로 청소년 이하를 지칭한다. 각 탑승객의 이름에는 꼭 이런 title이 들어가게 된다. 따라서 이 title을 이용해 보도록 하겠다.<br>
+&nbsp;이러한 타이틀을 python의 extract를 통해 initial을 추출해 보도록 하겠다.
+```python
+df_train['Initial'] = df_train['Name'].str.extract('([A-Za-z]+)\.')
+df_test['Initial'] = df_test['Name'].str.extract('([A-Za-z]+)\.')
+```
+```python
+pd.crosstab(df_train['Initial'], df_train['Sex']).T.style.background_gradient(cmap='summer_r')
+```
+<img src="https://media.discordapp.net/attachments/706368531175964732/706431522143731722/unknown.png" title="crosstab of initial" alt="crosstab of initial"></img><br>
+추출한 Initial을 crosstab을 통해 성별에 따라 나눠서 보면 위와 같은 그림이 나온다.<br>
+&nbsp;여기서 나온 title을 모두 Master, Miss, Mr, Mrs, Other로 치환해 준다. 그 코드를 작성하면 다음과 같이 된다.
+```python
+df_train['Initial'].replace(['Mlle','Mme','Ms','Dr','Major','Lady','Countess','Jonkheer','Col','Rev','Capt','Sir','Don', 'Dona'],
+                        ['Miss','Miss','Miss','Mr','Mr','Mrs','Mrs','Other','Other','Other','Mr','Mr','Mr', 'Mr'],inplace=True)
+
+df_test['Initial'].replace(['Mlle','Mme','Ms','Dr','Major','Lady','Countess','Jonkheer','Col','Rev','Capt','Sir','Don', 'Dona'],
+                        ['Miss','Miss','Miss','Mr','Mr','Mrs','Mrs','Other','Other','Other','Mr','Mr','Mr', 'Mr'],inplace=True)
+```
+```python
+df_train.groupby('Initial')['Survived'].mean().plot.bar()
+```
+<img src="https://cdn.discordapp.com/attachments/706368531175964732/706439936982908968/WJZ97okLAAAAAAElFTkSuQmCC.png" title="mean of each title graph" alt="mean of each title graph"></img><br>
+위 표를 살펴보면 여성과 관계있는 Miss, Mr가, 아이와 관계있는 Master가 생존률이 높은 것을 볼 수 있다.
+```python
+df_train.groupby('Initial')['Survived'].mean()
+```
+<img src="https://media.discordapp.net/attachments/706368531175964732/706440706624847872/unknown.png" title="mean of each title" alt="mean of each title"></img><br>
+다음에서 각 title Age의 평균 값을 df_train['Age']의 Null에 대입해 준다.
+```python
+df_train.loc[(df_train['Age'].isnull()) & (df_train['Initial'] == 'Mr'), 'Age'] = 33
+df_train.loc[(df_train['Age'].isnull()) & (df_train['Initial'] == 'Mrs'), 'Age'] = 36
+df_train.loc[(df_train['Age'].isnull()) & (df_train['Initial'] == 'Master'), 'Age'] = 5
+df_train.loc[(df_train['Age'].isnull()) & (df_train['Initial'] == 'Miss'), 'Age'] = 22
+df_train.loc[(df_train['Age'].isnull()) & (df_train['Initial'] == 'Other'), 'Age'] = 46
+
+df_test.loc[(df_test['Age'].isnull()) & (df_test['Initial'] == 'Mr'), 'Age'] = 33
+df_test.loc[(df_test['Age'].isnull()) & (df_test['Initial'] == 'Mrs'), 'Age'] = 36
+df_test.loc[(df_test['Age'].isnull()) & (df_test['Initial'] == 'Master'), 'Age'] = 5
+df_test.loc[(df_test['Age'].isnull()) & (df_test['Initial'] == 'Miss'), 'Age'] = 22
+df_test.loc[(df_test['Age'].isnull()) & (df_test['Initial'] == 'Other'), 'Age'] = 46
+```
+<br>
+<p>train의 Embarked 결측값은 2개로 많지 않기 때문에 최빈값으로 채워준다. <br></p>
+
+```python
+df_train['Embarked'].fillna('S', inplace=True)
+```
+<br>
+df_test의 Fare의 Null도 많지 않기 때문에 평균값으로 채워준다.
+```python
+df_test.loc[df_test.Fare.isnull(), 'Fare'] = df_test['Fare'].mean()
+```
 
 
+#### Categorize Age
+Age는 현재 continuous feature이다. 이대로 써도 되지만 category화 시켜줄 수도 있다. 하지만 continuous를 categorical로 바꾸면 information loss가 생길 수 있다. 다만 다양한 방법을 소개하는 것이 목적이기 때문에 categorical하게 바꾸도록 하겠다.
+```python
+def category_age(x):
+    if x < 10:
+        return 0
+    elif x < 20:
+        return 1
+    elif x < 30:
+        return 2
+    elif x < 40:
+        return 3
+    elif x < 50:
+        return 4
+    elif x < 60:
+        return 5
+    elif x < 70:
+        return 6
+    else:
+        return 7    
+    
+df_train['Age_cat'] = df_train['Age'].apply(category_age)
+```
+위와 같은 방법으로 바꿔줄 수 있다.
 
+#### String to Numercial (Initial & Embarked & Sex)
+String 데이터는 컴퓨터가 인식할 수 있도록 수치화 시켜줘야 한다. 이러한 작업은 map 메소드로 간단히 할 수 있다. Initial과 Embarked, Sex를 수치화 시켜주도록 하겠다.
+```python
+df_train['Initial'] = df_train['Initial'].map({'Master': 0, 'Miss': 1, 'Mr': 2, 'Mrs': 3, 'Other': 4})
+df_test['Initial'] = df_test['Initial'].map({'Master': 0, 'Miss': 1, 'Mr': 2, 'Mrs': 3, 'Other': 4})
+```
+```python
+df_train['Embarked'] = df_train['Embarked'].map({'C': 0, 'Q': 1, 'S': 2})
+df_test['Embarked'] = df_test['Embarked'].map({'C': 0, 'Q': 1, 'S': 2})
+```
+```python
+df_train['Sex'] = df_train['Sex'].map({'female': 0, 'male': 1})
+df_test['Sex'] = df_test['Sex'].map({'female': 0, 'male': 1})
+```
+
+#### Skewness
+&nbsp;아까 위에서 Fare의 데이터가 왼쪽으로 편향되어있다는 것을 확인했다. 만약 한쪽으로 편향될 경우 outlier에 민감하게 반응해 원하는 모델을 만들지 못할수도 있다고 했다. 이러한 비대칭도는 log를 씌어 잡아줄 수 있다.
+```python
+df_train['Fare'] = df_train['Fare'].map(lambda i: np.log(i) if i>0 else 0)
+df_test['Fare'] = df_test['Fare'].map(lambda i: np.log(i) if i>0 else 0)
+```
+비대칭도가 잡혔는지 그래프를 그려보면 다음과 같이 잘 잡힌 것을 확인할 수 있다.
+```python
+f, ax = plt.subplots(1, 1, figsize=(8, 8))
+g = sns.distplot(df_train['Fare'], color='b', label='Skewness: {:.2f}'.format(df_train['Fare'].skew()), ax=ax)
+g = g.legend(loc='best')
+```
+<img src="https://cdn.discordapp.com/attachments/706368531175964732/706449082973159504/jTG8bKbiEJkPtCCSiIiIAGopEBEREZeSAhEREQGUFIiIiIhLSYGIiIgASgpERETEpaRAREREACUFIiIi4lJSICIiIoCSAhEREXEp.png" title="Skewness Graph" alt="Skewness Graph"></img><br>
+
+#### Drop Useless Column
+```python
+df_train.drop(['PassengerId', 'Name', 'SibSp', 'Parch', 'Ticket', 'Cabin', 'Age'], axis=1, inplace=True)
+df_test.drop(['PassengerId', 'Name', 'SibSp', 'Parch', 'Ticket', 'Cabin', 'Age'], axis=1, inplace=True)
+```
 
 
 ### 참고자료
@@ -302,3 +415,4 @@ http://hero4earth.com/blog/learning/2018/01/29/Feature_Engineering_Basic/ <br>
 https://eda-ai-lab.tistory.com/13 <br>
 https://statkclee.github.io/model/model-feature-engineering.html <br>
 https://www.youtube.com/watch?v=_-N-kdodS0o&list=PLC_wC_PMBL5MnqmgTLqDgu4tO8mrQakuF&index=1 <br>
+https://romanegloo.wordpress.com/tag/mr-ms-mrs-miss-mstr-%ED%98%B8%EC%B9%AD/
