@@ -110,11 +110,11 @@ ax[1].set_title('Pclass: Survived vs Dead', y=y_position)
 plt.show()
 ```
 <img src="https://cdn.discordapp.com/attachments/706368531175964732/706385489376182272/wPOEu9mTDUlnwAAAABJRU5ErkJggg.png" title="sns graph Pclass & Survived" alt="sns graph Pclass & Survived"></img><br>
-&nbsp;여기서 얻을 수 있는 결론은 Pclass가 좋을수록 생존률이 높다는 것이다. 따라서 우리는 생존에 Pclass가 큰 영향을 미친다고 생각해 볼 수 있으며 이를 feature로 사용하는 것은 좋은 판단이라는 결론을 얻을 수 있다.
+&nbsp;여기서 얻을 수 있는 결론은 Pclass가 좋을수록 생존율이 높다는 것이다. 따라서 우리는 생존에 Pclass가 큰 영향을 미친다고 생각해 볼 수 있으며 이를 feature로 사용하는 것은 좋은 판단이라는 결론을 얻을 수 있다.
 
 #### Sex
 &nbsp;들어가기 전 Sex는 범주형 데이터(categorical data)이다.
-&nbsp;이번에는 성별해 따라 생존률이 어떻게 달라지는 지 살펴볼 것이다. sns로 시각화 해 보면 다음과 같이 나온다.
+&nbsp;이번에는 성별해 따라 생존율이 어떻게 달라지는 지 살펴볼 것이다. sns로 시각화 해 보면 다음과 같이 나온다.
 ```python
 f, ax = plt.subplots(1, 2, figsize=(18, 8))
 df_train[['Sex', 'Survived']].groupby(['Sex'], as_index=True).mean().plot.bar(ax=ax[0])
@@ -130,7 +130,7 @@ plt.show()
 pd.crosstab(df_train['Sex'], df_train['Survived'], margins=True).style.background_gradient(cmap='summer_r')
 ```
 <img src="https://media.discordapp.net/attachments/706368531175964732/706392280373919794/unknown.png" title="Sex & Survival crosstab" alt="Sex & Survival crosstab"></img><br>
-&nbsp;여기서 얻을 수 있는 결론은 여성이 생존확률이 더 높다는 것이다. 따라서 이 또한 feature로 사용하는 것이 좋은 판단이라고 할 수 있다.
+&nbsp;여기서 얻을 수 있는 결론은 여성이 생존 확률이 더 높다는 것이다. 따라서 이 또한 feature로 사용하는 것이 좋은 판단이라고 할 수 있다.
 
 #### Sex and Pclass
 &nbsp;이번에는 Sex, Pclass가 Survived에 대해 어떻게 달라지는 지 확인해 볼 것이다.<br>
@@ -176,7 +176,7 @@ plt.show()
 <img src="https://media.discordapp.net/attachments/706368531175964732/706402784232341514/8HBqkuXp0PwGoAAAAASUVORK5CYII.png" title="Age Distribution within classes" alt="Age Distribution within classes"></img><br>
 위 그래프를 살펴보면 Pclass가 높을수록 나이 많은 사람의 비중이 커짐을 알 수 있다.
 
-&nbsp;이번에는 나이대가 변하면서 생존률이 어떻게 변화하는 지 보기 위 해 나이 범위를 점점 넓혀가며, 생존률이 어떻게 되는지 살펴볼 것이다.
+&nbsp;이번에는 나이대가 변하면서 생존율이 어떻게 변화하는지 보기 위해 나이 범위를 점점 넓혀가며, 생존율이 어떻게 되는지 살펴볼 것이다.
 ```python
 change_age_range_survival_ratio = []
 
@@ -192,7 +192,7 @@ plt.xlabel('Range of Age(0~x)')
 plt.show()
 ```
 <img src="https://media.discordapp.net/attachments/706368531175964732/706401578537451611/W0RkYNSSLiIiIiIyxKjjqIiIiIjIEKMgXURERERkiFGQLiIiIiIyxChIFxEREREZYhSki4iIiIgMMQrSRURERESGmP8PPWvSwYkV.png" title="Survival rate change depending on range of Age" alt="Survival rate change depending on range of Age"></img><br>
-위 그래프를 살펴보면 나이가 어릴 수록 생존률이 확실히 높은 것을 확인할 수 있다. 따라서 Age는 중요한 feature로 사용될 수 있다.
+위 그래프를 살펴보면 나이가 어릴 수록 생존율이 확실히 높은 것을 확인할 수 있다. 따라서 Age는 중요한 feature로 사용될 수 있다.
 
 #### Pclass, Sex and Age
 &nbsp;여태까지 본 Sex, Pclass, Age, Survived 모두에 대해 보고 싶으면 seaborn의 violinplot을 사용하는 것도 하나의 방법이다. x축을 Pclass, Sex로 y축을 Age로 두고 그래프를 그리면 다음과 같이 나온다.
@@ -210,13 +210,13 @@ plt.show()
 생존만 봤을 때. 모든 클래스에서 나이가 어릴 수록 생존을 많이 한것을 볼 수 있다. 오른쪽 그래프를 보면 명확히 여자가 많이 생존한 것을 볼 수 있다. 결과적으로 여성과 아이를 먼저 챙긴 것을 알 수 있다.
 
 #### Embarked
-&nbsp;Embarked는 탑승한 항구를 나타낸다. 이번에는 탑승한 곳에 따른 생존률을 보겠다.
+&nbsp;Embarked는 탑승한 항구를 나타낸다. 이번에는 탑승한 곳에 따른 생존율을 보겠다.
 ```python
 f, ax = plt.subplots(1, 1, figsize=(7, 7))
 df_train[['Embarked', 'Survived']].groupby(['Embarked'], as_index=True).mean().sort_values(by='Survived', ascending=False).plot.bar(ax=ax)
 ```
 <img src="https://cdn.discordapp.com/attachments/706368531175964732/706416133103681577/adAAAAAElFTkSuQmCC.png" title="Embarked Survial rate" alt="Embarked Survival rate"></img><br>
-위 그래프를 보면 항구마다 조금 씩 차이는 있지만 생존률은 비슷하다. 이 feature가 모델에 얼마나 큰 영향을 미칠지는 모르겠지만 그래도 사용하도록 한다. 미리 스포일러 하자면 RandomForest 기준 영향 미친건 쥐똥만하다.
+위 그래프를 보면 항구마다 조금 씩 차이는 있지만 생존은 비슷하다. 이 feature가 모델에 얼마나 큰 영향을 미칠지는 모르겠지만 그래도 사용하도록 한다. 미리 스포일러 하자면 RandomForest 기준 영향 미친건 쥐똥만하다.
 &nbsp;Embarked를 다른 feature와 함께 그래프를 그리면 다음과 같이 그려진다.
 ```python
 f, ax = plt.subplots(2, 2, figsize=(20, 15))
@@ -238,8 +238,8 @@ plt.show()
 <img src="https://media.discordapp.net/attachments/706368531175964732/706417747994607646/BeoOtZn5wWCNAAAAAElFTkSuQmCC.png?width=900&height=677" title="Emabrked and various features" alt="Emabrked and various features"></img><br>
 첫 번째 그림을 봤을 때 S에서 가장 많은 사람이 탑승했다. <br>
 두 번째 그림을 봤을 때에는 C와 Q의 남녀비율이 비슷하고 S는 남자가 더 많다.<br>
-세 번째 그림을 보면 생존확률이 S의 경우 많이 낮은 걸 볼 수 있다. 아마 남자의 비율이 높았기 때문일지도 모른다. <br>
-네 번째 그림에서는 C가 생존확률이 높은 것은 클래스가 높은 사람이 많이 타서 그런것으로 보인다. 그리고 S는 3rd class가 많아서 생존확률이 낮게 나오는 것 같다.
+세 번째 그림을 보면 생존 확률이 S의 경우 많이 낮은 걸 볼 수 있다. 아마 남자의 비율이 높았기 때문일지도 모른다. <br>
+네 번째 그림에서는 C가 생존 확률이 높은 것은 클래스가 높은 사람이 많이 타서 그런것으로 보인다. 그리고 S는 3rd class가 많아서 생존 확률이 낮게 나오는 것 같다.
 
 #### FamilySize(SibSp(형제 자매) + Parch(부모 자녀) + 1(나))
 &nbsp; SibSp와 Parch를 합치면 Family가 될 것이다. Family로 합쳐서 분석해보도록 한다.
@@ -317,7 +317,7 @@ df_test['Initial'].replace(['Mlle','Mme','Ms','Dr','Major','Lady','Countess','Jo
 df_train.groupby('Initial')['Survived'].mean().plot.bar()
 ```
 <img src="https://cdn.discordapp.com/attachments/706368531175964732/706439936982908968/WJZ97okLAAAAAAElFTkSuQmCC.png" title="mean of each title graph" alt="mean of each title graph"></img><br>
-위 표를 살펴보면 여성과 관계있는 Miss, Mr가, 아이와 관계있는 Master가 생존률이 높은 것을 볼 수 있다.
+위 표를 살펴보면 여성과 관계있는 Miss, Mr가, 아이와 관계있는 Master가 생존이 높은 것을 볼 수 있다.
 ```python
 df_train.groupby('Initial')['Survived'].mean()
 ```
