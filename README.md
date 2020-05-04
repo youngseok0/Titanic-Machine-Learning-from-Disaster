@@ -1,5 +1,7 @@
 # Titanic-Machine-Learning-from-Disaster
-캐글 타이타닉 이유한님 유튜브 영상 참고
+캐글 타이타닉 이유한님 유튜브 영상 참고<br>
+<br>
+여기서 나올 코드는 민우가 https://github.com/daehoidar/Kaggle-Titanic-Code-explainion  잘 설명해 놓을거임 
 ### Data Science Process
 &nbsp;데이터 사이언스는 다음과 같은 단계로 구성되어 있다.
 1. Project Scoping(Define Problem)
