@@ -4,15 +4,15 @@
 여기서 나올 코드는 민우가 https://github.com/daehoidar/Kaggle-Titanic-Code-explainion  잘 설명해 놓을거임 
 ### Data Science Process
 &nbsp;데이터 사이언스는 다음과 같은 단계로 구성되어 있다.
-1. Project Scoping(Define Problem)
-2. Data Collection
-3. Dataset Check
-4. EDA(Exploratory Data Analysis)
-5. Data Preprocessing
-6. Feature Engineering
-7. Modeling
-8. Evaluation
-9. Project Delivery / Insights (Submission)
+1. **Project Scoping(Define Problem)**
+2. **Data Collection**
+3. **Dataset Check**
+4. **EDA(Exploratory Data Analysis)**
+5. **Data Preprocessing**
+6. **Feature Engineering**
+7. **Modeling**
+8. **Evaluation**
+9. **Project Delivery / Insights (Submission)**
 <p>하지만 이 레포지터리에서는 캐글의 타이타닉 생존자 예측을 하는 것이기 때문에 문제가 정의되어 있고 데이터도 모여있다. 따라서 1, 2번 과정을 스킵한다. 그리고 Data Preprocessing과 Feature Engineering은 동일시하는 경향이 있지만 엄밀한 의미에서 보면 최종 목적이 다르기 때문에 목적에 맞게 구분하는 것을 권장한다고 하지만 내가 차이를 이해하지 못했기 때문에 여기선 동일하다고 가정하겠다. 그렇게 되면 우리가 최종적으로 하게될 것은 EDA, Feature Engineering, Modeling, Evaluation, Project Delivery / Insight 가 되겠다.</p>
 &nbsp;이제부터 캐글 타이타닉 생존자 예측을 시작해 보도록 하겠다.
 
@@ -294,12 +294,12 @@ Fare를 distplot으로 그려 비대칭도를 살펴보면 왼쪽으로 매우 �
 #### Feature Engineering 정의
 &nbsp;Feature Engineering은 머신러닝 알고리즘을 작동하기 위해 데이터에 대한 도메인 지식을 활용하여 feature를 만들어내는 작업이다. 다시말해 모델의 성능을 높이기 위해 모델에 입력할 데이터를 만들기 주어진 초기 데이터로부터 특징을 가공하고 생성하는 전체 과정을 의미한다. <br>
 &nbsp;Feature Engineering은 다음과 같은 프로세스의 방법론을 적용한다.
-1. Brainstorming or Testing features.
-2. Deciding what features to create.
-3. Creating features.
-4. Checking how the features work with your model.
-5. Improving your features if needed.
-6. Go back to brainstorming/creating more features until the work is done.
+1. **Brainstorming or Testing features.**
+2. **Deciding what features to create.**
+3. **Creating features.**
+4. **Checking how the features work with your model.**
+5. **Improving your features if needed.**
+6. **Go back to brainstorming/creating more features until the work is done.**
 
 또한 다음과 같은 방법으로 Feature Engineering을 한다.
 * **지표 변수(Indicator Variables)** : 지표 변수를 만드는 것으로 예를 들어 나이 feature로 부터 21세 이상일 경우 성인으로 구분하는 feature를 만들 수 있다. 그리고, 부동산 정보의 경우 침실과 화장실의 갯수를 통해 부동산 가치를 판단하는 지표 변수를 만들 수 있다.
